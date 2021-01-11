@@ -1,4 +1,12 @@
 // Variables
+variable "packages" {
+  type    = list(string)
+  default = [
+    "curl",
+    "unzip"
+  ]
+}
+
 variable "vault_home" {
   type    = string
   default = "/opt/vault"
@@ -32,7 +40,10 @@ build {
   sources = ["source.lxd.vault-ubuntu-focal"]
 
   provisioner "shell" {
-    script = "shell/base_pre.sh"
+    inline = [
+      "apt-get update -qq",
+      "DEBIAN_FRONTEND=noninteractive apt-get install -qq ${join(" ", var.packages)} < /dev/null > /dev/null"
+    ]
   }
 
   provisioner "shell" {
