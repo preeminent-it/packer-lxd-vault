@@ -1,27 +1,3 @@
-// Variables
-variable "source" {
-  type = map(string)
-  default = {
-    description = "Hashicorp Vault- Ubuntu 20.04"
-    image       = "base-ubuntu-focal"
-    name        = "vault-ubuntu-focal"
-  }
-}
-
-variable "vault_home" {
-  type    = string
-  default = "/opt/vault"
-}
-
-variable "vault_user" {
-  type    = string
-  default = "vault"
-}
-
-locals {
-  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
-}
-
 // Image
 source "lxd" "main" {
   image        = "${var.source.image}"
@@ -44,8 +20,8 @@ build {
 
   // Add Vault config
   provisioner "file" {
-    source      = "files/etc/vault/vault.hcl"
-    destination = "/etc/vault/vault.hcl"
+    source      = "files/etc/vault"
+    destination = "/etc/"
   }
 
   // Add Vault service
@@ -59,13 +35,6 @@ build {
     inline = [
       "chown -R ${var.vault_user} /etc/vault ${var.vault_home}",
       "systemctl enable vault"
-    ]
-  }
-
-  // Disable Vault Agent
-  provisioner "shell" {
-    inline = [
-      "systemctl disable vault-agent"
     ]
   }
 }
